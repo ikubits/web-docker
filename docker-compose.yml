@@ -1,0 +1,68 @@
+# version: '3.8'
+
+services:
+  # Apache and PHP service
+  web:
+    # image: php:8.2-apache
+    # image: php:8.4-apache
+    build:
+      context: ./php/8.2
+      # context: ./php/8.4
+      args:
+        UID: 1000 # user id
+        GID: 1000 # group id
+    container_name: php-apache-container
+    ports:
+      - "80:80"
+    volumes:
+      # - ./www/html:/var/www/html
+      - ./www/projects:/var/www/html
+      # - ./php/8.2/php.ini:/usr/local/etc/php/php.ini
+      - ./apache/vhosts:/etc/apache2/sites-enabled
+      - ./apache/logs:/var/log/apache2
+      # - ./apache/logs/php/error.log:/var/log/php_errors.log
+    # environment:
+    #   APACHE_RUN_USER: www-data
+    #   APACHE_RUN_GROUP: www-data
+    # user: "${WEB_DOCKER_UID}:${WEB_DOCKER_GID}"
+    depends_on:
+      - db
+    # command: >
+    #   bash -c "docker-php-ext-install mysqli pdo pdo_mysql && apache2-foreground"
+    networks:
+      - devnet
+
+  db:
+    image: mariadb:11.7
+    container_name: mariadb-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      # MYSQL_USER: user
+      # MYSQL_PASSWORD: pass
+      # MYSQL_DATABASE: mydb
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - devnet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    container_name: pma-container
+    # restart: always
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 256M
+    depends_on:
+      - db
+    networks:
+      - devnet
+
+volumes:
+  dbdata:
+
+networks:
+  devnet:
