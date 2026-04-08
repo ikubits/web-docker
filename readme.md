@@ -4,6 +4,12 @@ Simple Docker based php web development environment.
 
 ## Basic usage
 
+### Projects directory symlink
+
+```bash
+ln -s /home/user/projects ./www/projects
+```
+
 ## DB import/export
 
 ### MariaDB
