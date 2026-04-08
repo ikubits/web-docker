@@ -5,10 +5,27 @@ Simple Docker based php web development environment.
 ## Basic usage
 
 ### Projects directory symlink
-
+Best way to use web-docker with external projects is to create symlink for projects directory.
 ```bash
 ln -s /home/user/projects ./www/projects
 ```
+
+### Add project vhost
+Copy `example.test.conf` as `project-name.test.conf`.
+Update it like:
+```bash
+<VirtualHost *:80>
+    ServerName project-name.test
+    DocumentRoot /var/www/html/project-name
+
+    <Directory /var/www/html/project-name>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+Container `/var/www/html`is bind to the local `./www/projects`.
+
 
 ## DB import/export
 
