@@ -11,27 +11,27 @@ export WEB_DOCKER_GID=$(id -g)
 case "$1" in
     up)
         echo "Server up..."
-        sudo docker compose up -d
+        docker compose up -d
         ;;
     down)
         echo "Server down..."
-        sudo docker compose down
+        docker compose down
         ;;
     build)
         echo "Server rebuild..."
-        sudo docker compose build
+        docker compose build
         ;;
     stats)
         echo "Check server stats..."
-        sudo docker compose stats
+        docker compose stats
         ;;
     logs)
         echo "Check server logs..."
-        sudo docker compose logs
+        docker compose logs
         ;;
     bash)
         echo "Open server bash..."
-        sudo docker exec -it php-apache-container bash
+        docker exec -it php-apache-container bash
         ;;
     edit)
         echo "Edit server settings..."
