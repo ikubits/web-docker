@@ -1,0 +1,8 @@
+/apache/logs/*
+
+/apache/vhosts/*
+!/apache/vhosts/example.test.cftn
+!/apache/vhosts/index.cftn
+
+/www/*
+!/www/html/
