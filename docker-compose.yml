@@ -66,3 +66,5 @@ volumes:
 
 networks:
   devnet:
+    name: global-devnet
+    driver: bridge
