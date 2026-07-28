@@ -6,8 +6,8 @@ services:
     # image: php:8.2-apache
     # image: php:8.4-apache
     build:
-      context: ./php/8.2
-      # context: ./php/8.4
+      # context: ./php/8.2
+      context: ./php/8.4
       args:
         UID: 1000 # user id
         GID: 1000 # group id
