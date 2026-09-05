@@ -1,19 +1,89 @@
-# Web Docker
+# Web Docker Dev Environment
 
-Simple Docker based php web development environment.
+A simplified, centralized Docker-based PHP and MariaDB development environment designed to host multiple projects on a single server setup.
 
-## Basic usage
 
-### Projects directory symlink
-Best way to use web-docker with external projects is to create symlink for projects directory.
-```bash
-ln -s /home/user/projects ./www/projects
+## 🚀 Getting Started
+
+The easiest way to interact with the environment is using the included bash script (`web-docker.sh`), which automatically handles your local user permissions.
+
+### 💡 Pro Tip: Set Up a Global Alias
+
+To run the environment commands from anywhere on your system, we highly recommend adding a bash alias. We have included an example `.bash_aliases` file in this project. 
+
+You can copy its contents to your own `~/.bash_aliases` (or `~/.bashrc` / `~/.zshrc`) file:
+
+1. Open your local aliases file:
+   ```bash
+   nano ~/.bash_aliases
+
 ```
 
-### Add project vhost
-Copy `example.test.conf` as `project-name.test.conf`.
-Update it like:
+2. Add the alias, making sure to replace `~/tools/web-docker` with the actual path to where you placed this environment:
 ```bash
+alias web-docker='sh ~/tools/web-docker/web-docker.sh'
+
+```
+
+3. Apply the changes to your current terminal session:
+```bash
+source ~/.bash_aliases
+
+```
+
+### 🛠️ Available Commands
+
+Once your alias is set up, you can manage your server from anywhere using:
+
+```bash
+web-docker up     # Start the environment
+web-docker down   # Stop the environment
+web-docker build  # Rebuild the PHP/Apache container
+web-docker bash   # Enter the web container shell
+web-docker logs   # View server logs
+web-docker stats  # Check server performance stats
+web-docker edit   # Open the server directory in VS Code
+
+```
+
+*(If you prefer not to use the alias, simply run `./web-docker.sh <command>` from inside the project folder).*
+
+
+## 📁 Managing Projects
+
+### 1. Linking your projects directory
+
+The best way to use this environment with external projects is to create a symlink from your host machine's project folder into the environment.
+
+**Step 1: Create the symlink**
+Run this command, replacing `/home/user/projects` with the actual path to your projects:
+```bash
+ln -s /home/user/projects ./www/projects
+
+```
+
+**Step 2: Update `docker-compose.yml`**
+Next, you need to tell Docker to mount this new symlink instead of the default static directory. Open your `docker-compose.yml` and modify the `volumes` section under the `web` service.
+
+Comment out the default `./www/html` line and uncomment the `./www/projects` line:
+
+```yaml
+    volumes:
+      # Choose a projects location local or symlink
+      # - ./www/html:/var/www/html # ./www/html is a static folder inside
+      - ./www/projects:/var/www/html # ./www/projects is a symlink from another location
+
+```
+
+*(After making this change, you will need to run `web-docker down` and `web-docker up` to apply the new volume mapping).*
+
+
+### 2. Adding a Project Virtual Host
+
+1. Copy `example.test.conf` to `./apache/vhosts/project-name.test.conf`.
+2. Update the configuration to point to your project's directory:
+
+```apache
 <VirtualHost *:80>
     ServerName project-name.test
     DocumentRoot /var/www/html/project-name
@@ -23,32 +93,59 @@ Update it like:
         Require all granted
     </Directory>
 </VirtualHost>
+
 ```
-Container `/var/www/html`is bind to the local `./www/projects`.
+
+*Note: Ensure you map `project-name.test` to `127.0.0.1` in your host machine's `/etc/hosts` file.*
 
 
-## DB import/export
+## 🗄️ Database Management
 
-### MariaDB
+You can manage your databases visually via phpMyAdmin at `http://localhost:8080`, or via the CLI:
 
-#### import
+### MariaDB (Default)
+
+**Import a database:**
 ```bash
 docker exec -i mariadb-container mariadb -u root -proot db_name < ./example_path/db_name.sql
+
 ```
 
-#### export
+**Export a database:**
+
 ```bash
 docker exec -i mariadb-container mariadb-dump -u root -proot db_name > ./example_path/db_name.sql
+
 ```
 
-### MySQL
 
-#### import
+### MySQL (Alternative / Not configured by default)
+
+*If you decide to swap MariaDB for MySQL in your `docker-compose.yml`, the container name and CLI tools change slightly:*
+
+**Import a database:**
+
 ```bash
 docker exec -i mysql-container mysql -u root -proot db_name < ./example_path/db_name.sql
+
 ```
 
-#### export
+**Export a database:**
+
 ```bash
 docker exec -i mysql-container mysqldump -u root -proot db_name > ./example_path/db_name.sql
+
+```
+
+
+## 🌐 Connecting External Docker Containers
+
+This environment creates a global network named `global-devnet`. If you have a separate Docker compose project that needs to talk to this server's database or web container, add the following to the external project's `docker-compose.yml`:
+
+```yaml
+networks:
+  default:
+    name: global-devnet
+    external: true
+
 ```
