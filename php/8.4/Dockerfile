@@ -50,6 +50,7 @@ WORKDIR /var/www/html
 # Match container user to host user (group first, then user)
 RUN groupmod -g ${GID} www-data \
     && usermod -u ${UID} -g ${GID} www-data
+    && chown -R www-data:www-data /var/www
 
 # RUN chown -R www-data:www-data /var/www/html
 # RUN chmod -R 775 /var/www/html

@@ -3,32 +3,29 @@
 services:
   # Apache and PHP service
   web:
-    # image: php:8.2-apache
-    # image: php:8.4-apache
     build:
+      # Choose a php version (prepare new one if needed)
       # context: ./php/8.2
       context: ./php/8.4
+      # ---
       args:
-        UID: 1000 # user id
-        GID: 1000 # group id
+        # Pull dynamically from host environment variables (exported by web-docker.sh)
+        UID: ${WEB_DOCKER_UID:-1000} # user id
+        GID: ${WEB_DOCKER_GID:-1000} # group id
     container_name: php-apache-container
     ports:
       - "80:80"
     volumes:
-      # - ./www/html:/var/www/html
-      - ./www/projects:/var/www/html
+      # Choose a projects location local or symlink
+      - ./www/html:/var/www/html # ./www/html is a static folder inside
+      # - ./www/projects:/var/www/html # ./www/projects is a symlink from another location
+      # ---
       # - ./php/8.2/php.ini:/usr/local/etc/php/php.ini
       - ./apache/vhosts:/etc/apache2/sites-enabled
       - ./apache/logs:/var/log/apache2
       # - ./apache/logs/php/error.log:/var/log/php_errors.log
-    # environment:
-    #   APACHE_RUN_USER: www-data
-    #   APACHE_RUN_GROUP: www-data
-    # user: "${WEB_DOCKER_UID}:${WEB_DOCKER_GID}"
     depends_on:
       - db
-    # command: >
-    #   bash -c "docker-php-ext-install mysqli pdo pdo_mysql && apache2-foreground"
     networks:
       - devnet
 
