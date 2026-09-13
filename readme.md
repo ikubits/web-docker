@@ -99,6 +99,43 @@ Comment out the default `./www/html` line and uncomment the `./www/projects` lin
 *Note: Ensure you map `project-name.test` to `127.0.0.1` in your host machine's `/etc/hosts` file.*
 
 
+### 3. Container Network Aliases (Override File)
+
+To ensure your local virtual hosts are resolvable by containers from other compose stacks on the `global-devnet` network, you need to list them in the Docker Compose override file.
+
+Docker Compose picks this file up automatically, and keeping it as an untracked override ensures your local domains don't conflict with other developers.
+
+**Step 1: Create the override file**
+Copy the included example file to create your local, git-ignored override file:
+
+```bash
+cp docker-compose.override.example.yml docker-compose.override.yml
+
+```
+
+**Step 2: Add your local vhosts**
+Open `docker-compose.override.yml` and list your project domains under the `web` service's network aliases:
+
+```yaml
+services:
+  web:
+    networks:
+      devnet:
+        aliases:
+          - example.test
+          - project-name.test # Add your new local vhosts here
+
+```
+
+**Step 3: Apply the changes**
+Whenever you modify the override file, you must restart the environment:
+
+```bash
+web-docker down && web-docker up
+
+```
+
+
 ## 🗄️ Database Management
 
 You can manage your databases visually via phpMyAdmin at `http://localhost:8080`, or via the CLI:

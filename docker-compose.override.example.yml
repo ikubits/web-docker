@@ -1,0 +1,10 @@
+# Copy to docker-compose.override.yml (untracked) and list your local vhosts.
+# Every hostname listed here is resolvable on the global-devnet network
+# by containers from other compose stacks.
+# Requires `web-docker down && web-docker up` after a change.
+services:
+  web:
+    networks:
+      devnet:
+        aliases:
+          - example.test

@@ -6,3 +6,5 @@
 
 /www/*
 !/www/html/
+
+/docker-compose.override.yml
