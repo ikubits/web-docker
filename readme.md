@@ -176,7 +176,53 @@ web-docker down && web-docker up
 
 You can manage your databases visually via phpMyAdmin at `http://localhost:8080`, or via the CLI:
 
-### MariaDB (Default)
+
+### Per-Project Database Setup
+
+For each new project, you can create a dedicated initialization script inside your project's `db/` folder (e.g., `./db/project-name.test.sql`). 
+
+**Create your project setup file (`db/project-name.test.sql`):**
+
+```sql
+-- 1. CREATE
+CREATE DATABASE IF NOT EXISTS project_name_db
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'project_name_user'@'%' IDENTIFIED BY 'project_secure_password';
+GRANT ALL PRIVILEGES ON project_name_db.* TO 'project_name_user'@'%';
+
+```
+
+**Execute the file to provision the database and user:**
+```bash
+docker exec -i mariadb-container mariadb -u root -proot < ./db/project-name.test.sql
+
+```
+
+
+### SQL Reference Guide
+
+```sql
+-- ==========================================
+-- Database & User Management Reference
+-- ==========================================
+
+-- CREATE (New)
+CREATE DATABASE IF NOT EXISTS project_name_db
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'project_name_user'@'%' IDENTIFIED BY 'project_secure_password';
+GRANT ALL PRIVILEGES ON project_name_db.* TO 'project_name_user'@'%';
+
+-- UPDATE (Change Password)
+ALTER USER 'project_name_user'@'%' IDENTIFIED BY 'new_project_secure_password';
+
+-- DELETE (Clean Up)
+DROP DATABASE IF EXISTS project_name_db;
+DROP USER IF EXISTS 'project_name_user'@'%';
+
+```
+
+
+### MariaDB CLI Operations (Default)
 
 **Import a database:**
 ```bash
@@ -190,9 +236,10 @@ docker exec -i mariadb-container mariadb -u root -proot db_name < ./example_path
 docker exec -i mariadb-container mariadb-dump -u root -proot db_name > ./example_path/db_name.sql
 
 ```
+*Note: Always use `-i` (and not `-it`) when running commands that involve file redirection (`<` or `>`) with `docker exec`.*
 
 
-### MySQL (Alternative / Not configured by default)
+### MySQL CLI Operations (Alternative / Not configured by default)
 
 *If you decide to swap MariaDB for MySQL in your `docker-compose.yml`, the container name and CLI tools change slightly:*
 

@@ -4,6 +4,9 @@
 !/apache/vhosts/example.test.conf
 !/apache/vhosts/index.conf
 
+/db/*
+!/db/example.test.sql
+
 /www/*
 !/www/html/
 
