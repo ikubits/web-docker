@@ -83,6 +83,8 @@ Comment out the default `./www/html` line and uncomment the `./www/projects` lin
 1. Copy `example.test.conf` to `./apache/vhosts/project-name.test.conf`.
 2. Update the configuration to point to your project's directory:
 
+A standard clean configuration looks like this:
+
 ```apache
 <VirtualHost *:80>
     ServerName project-name.test
@@ -91,6 +93,40 @@ Comment out the default `./www/html` line and uncomment the `./www/projects` lin
     <Directory /var/www/html/project-name>
         AllowOverride All
         Require all granted
+        Options -Indexes +FollowSymLinks
+        php_admin_value open_basedir "/var/www/html/project-name:/tmp:/var/lib/php/sessions"
+        php_admin_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen"
+    </Directory>
+</VirtualHost>
+```
+
+For reference, here is the same configuration fully commented to explain what each directive does:
+
+```apache
+# Define a VirtualHost that listens for standard HTTP traffic on port 80
+<VirtualHost *:80>
+    # The local domain name used to access this specific project in your browser
+    ServerName project-name.test
+    
+    # The path inside the container pointing to the project's folder
+    DocumentRoot /var/www/html/project-name
+
+    # Apply specific access controls and permissions rules to this directory
+    <Directory /var/www/html/project-name>
+        # Allow .htaccess files to override global settings (crucial for URL rewriting like in WordPress/Laravel)
+        AllowOverride All
+        
+        # Permit web server access to this directory
+        Require all granted
+        
+        # Disable file tree browsing (-Indexes) and allow symbolic links (+FollowSymLinks)
+        Options -Indexes +FollowSymLinks
+        
+        # Restrict PHP file access strictly to this project, temp storage, and sessions
+        php_admin_value open_basedir "/var/www/html/project-name:/tmp:/var/lib/php/sessions"
+        
+        # Disable dangerous system command execution functions for security
+        php_admin_value disable_functions "exec,passthru,shell_exec,system,proc_open,popen"
     </Directory>
 </VirtualHost>
 
